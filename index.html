@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ajax</title>
+</head>
+<body>
+<button id="getAjax1">获取responseText</button>
+<button id="getAjax2">获取responseXML</button>
+<br/>
+<div>
+    <p>responseText返回的文本：<span id="output1"></span></p>
+    <p>responseXML返回的文本：<span id="output2"></span></p>
+</div>
+<script>
+    //采用模块模式来封装代码
+    var myAjax = (function(){
+        function Temp(){
+            this.xmlHttp = new XMLHttpRequest();
+        }
+        Temp.prototype.init =function(method, url, callback) {
+            var self = this;
+            this.xmlHttp.onreadystatechange=function(){
+                if(self.xmlHttp.readyState ===4 && self.xmlHttp.status === 200){
+                    callback(self.xmlHttp);
+                }
+            };
+            this.xmlHttp.open(method,url,true);
+            this.xmlHttp.send();
+        };
+       return{
+           ajax: function(method, url, callback) {
+               var ajaxChild = new Temp();
+               ajaxChild.init(method, url, callback);
+           }
+       }
+    })();
+    //测试用例
+    document.getElementById('getAjax1').onclick = function() {
+        myAjax.ajax('GET', 'demo.php?name=wen', function (xmlHttp) {//获取responseText文本数据
+            document.getElementById('output1').innerHTML = xmlHttp.responseText;
+            console.log(xmlHttp.responseText);
+        })
+    };
+    document.getElementById('getAjax2').onclick = function() {
+        myAjax.ajax('GET', 'demo.xml',function(xmlHttp){//获取responseXML文档对象
+            var xmlEleValue = xmlHttp.responseXML.getElementsByTagName('name')[0].firstChild.nodeValue;
+            document.getElementById('output2').innerHTML=xmlEleValue;
+            console.dir(xmlHttp.responseXML);
+        });
+    }
+</script>
+</body>
+</html>
